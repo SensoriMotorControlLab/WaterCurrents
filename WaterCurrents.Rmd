@@ -1,0 +1,87 @@
+---
+title: "WaterCurrents"
+author: "Marius 't Hart"
+date: "2026-03-09"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+Here we test whether or not people can learn to throw a ball at a target, through a water current.
+
+We use two water current speeds: 2m/s and 3m/s, and 4 targets: 30 and 60 cm to the left and right of the start/throw position. All 4 targets are 1.4 m forward. Since the water current moves to the left, the targets to the right are upstream (and harder) and the targets to the left are downstream (and easier).
+
+In the first experiment, participants train with one upstream and one downstream target (-60 and 30 cm or -30 and 60 cm), and then train with the other two targets to see if there is any generalization.
+
+In the second experiment, participants train with only 1 target (-60 or 60 cm) but for an extended period of time, and we see if that helps with generalization to the other targets.
+
+# Setup
+
+```{r}
+source('R/data.R')
+source('R/figures.R')
+```
+
+
+# Experiment 1: two-target training, twice
+
+Things to check:
+
+1. Baseline correction (remove misses of +/- 50 cm)
+2. Remove per trial outliers using 3 sd criterion
+3. Look for erratic people
+
+We do the baseline correction and outlier removal, and split the file into separate files (one for each waterspeed):
+
+```{r}
+preprocessExp1File()
+```
+
+This also creates a file with the baseline errors for each target and participant.
+
+We can now plot the full time course for each participant, to check for erratic people:
+
+```{r}
+allParticiantPlotsExp1()
+```
+
+This creates a PDF in the docs/ folder, one for each waterspeed, with 3 plots per page, and each plot is for one participant. I don't see anything exceptional that needs to be flagged.
+
+Separately for each waterspeed, here is an average across all participants, with bootstrapped 95% confidence intervals:
+
+```{r width = 11, height = 8.5}
+groupAveragesExp1(target='pdf')
+```
+
+
+# Experiment 2: one-target training + all target washout, twice
+
+Parse through data for Deepika. Same baseline correction as for exp 1. No outlier removal:
+
+```{r}
+preprocessExp2File()
+```
+
+Again this also creates a file with the baseline errors for each target and participant.
+
+Then create a Jamovi/JASP file in wide format, with columns:
+- ID
+- group
+- baseline for each target
+- early and late training_1 for each target
+- washout_1 for each target
+- early and late training_2 for each target
+- washout_2 for each target
+
+So that's 2 + 5*4 = 22 columns. Each row is a participant. There will be lots of missing values.
+
+Baselines use the whole baseline period, early and late use the first and last fours instances of each target, so they get data drawn from different lengths of sets of trials. Washout uses the first target 4 instances (max) from the very first washout phase after each main training phase.
+
+Then get the same for exp 1, waterspeed -2 m/s.
+
+```{r}
+getDeepikasData()
+```
+
